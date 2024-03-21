@@ -18,4 +18,9 @@ options:
   ssh_host_args:
   - username@hostname
   - -p 1234 root@192.168.0.1
-  message: "Hello world..."
+schema:
+  ssh_pub_key: str?
+  ssh_pri_key: str?
+  git_repo: str?
+  ssh_host_args:
+  - str

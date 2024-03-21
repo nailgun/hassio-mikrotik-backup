@@ -1,4 +1,5 @@
 # https://developers.home-assistant.io/docs/add-ons/repository#repository-configuration
-name: Example Home Assistant add-on repository
-url: 'https://github.com/home-assistant/addons-example'
-maintainer: Awesome Maintainer <awesome@example.com>
+
+name: nailgun's home assistant addons repository
+url: 'https://github.com/nailgun/hassio-addons'
+maintainer: Dmitry Bashkatov <dbashkatov@gmail.com>

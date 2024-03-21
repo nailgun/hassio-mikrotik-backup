@@ -1,0 +1,12 @@
+#!/usr/bin/with-contenv bashio
+# ==============================================================================
+# Start the service
+# s6-overlay docs: https://github.com/just-containers/s6-overlay
+# ==============================================================================
+
+git --version || echo bashio::log.error "no git"
+
+## Get the 'message' key from the user config options.
+bashio::log.info "$(bashio::config 'ssh_host_args')"
+
+sleep 10

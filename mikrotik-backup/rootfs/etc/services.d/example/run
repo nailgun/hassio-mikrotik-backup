@@ -25,6 +25,10 @@ if bashio::config.true "skip_host_key_checking"; then
   echo -e "Host *\n    StrictHostKeyChecking no" > ~/.ssh/config
 fi
 
+# Allow deprecated ssh keys
+# See https://confluence.atlassian.com/bitbucketserverkb/ssh-rsa-key-rejected-with-message-no-mutual-signature-algorithm-1026057701.html
+echo "PubkeyAcceptedKeyTypes +ssh-rsa" >> /etc/ssh/ssh_config
+
 # TODO: if repo exist, check remote url
 if [ ! -d /data/repo ]; then
   bashio::log.info "Initial repo cloning..."
@@ -32,5 +36,7 @@ if [ ! -d /data/repo ]; then
   mkdir -p /data/repo/mikrotik
 fi
 
-ls -l ~/.ssh
+echo "SSH known hosts:"
+cat ~/.ssh/known_hosts
+
 exec /usr/bin/do_backup

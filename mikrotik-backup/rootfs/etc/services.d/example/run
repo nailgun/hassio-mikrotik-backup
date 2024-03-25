@@ -20,6 +20,7 @@ chmod 600 ~/.ssh/id_rsa
 if [ ! -d /data/repo ]; then
   bashio::log.info "Initial repo cloning..."
   git clone "$git_repo" /data/repo
+  mkdir -p /data/repo/mikrotik
 fi
 
 exec /usr/bin/do_backup

@@ -12,6 +12,12 @@ cp /data/known_hosts ~/.ssh/known_hosts
 bashio::log.info "Pulling repo changes..."
 git -C "/data/repo" pull
 
+if bashio::config.true "include_sensitive"; then
+  export_cmd="/export show-sensitive"
+else
+  export_cmd="/export"
+fi
+
 ssh_host_args="$(bashio::config ssh_host_args)"
 
 echo "$ssh_host_args" | while read -r host_args; do
@@ -28,7 +34,7 @@ echo "$ssh_host_args" | while read -r host_args; do
   bashio::log.info "  ident: $ident"
 
   # shellcheck disable=SC2086
-  _ssh $host_args /export | sed '1 s/#.* by/# by/' > "/data/repo/mikrotik/$ident.rsc" || true
+  _ssh $host_args $export_cmd | sed '1 s/#.* by/# by/' > "/data/repo/mikrotik/$ident.rsc" || true
 
   git -C "/data/repo" add "/data/repo/mikrotik/$ident.rsc"
   git -C "/data/repo" commit --message="Mikrotik backup: $ident" || true

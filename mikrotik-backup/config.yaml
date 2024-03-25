@@ -11,6 +11,7 @@ arch:
   - amd64
   - i386
 init: false
+startup: once
 options:
   ssh_pub_key: ssh-rsa AAAABF234234234...
   ssh_pri_key: -----BEGIN OPENSSH PRIVATE KEY-----...

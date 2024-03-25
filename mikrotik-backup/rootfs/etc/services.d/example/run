@@ -4,9 +4,17 @@
 # s6-overlay docs: https://github.com/just-containers/s6-overlay
 # ==============================================================================
 
-git --version || echo bashio::log.error "no git"
+set -euo pipefail
 
-## Get the 'message' key from the user config options.
-bashio::log.info "$(bashio::config 'ssh_host_args')"
+mkdir ~/.ssh
+bashio::config ssh_pub_key > ~/.ssh/id_rsa.pub
+bashio::config ssh_pri_key > ~/.ssh/id_rsa
+chmod 600 ~/.ssh/id_rsa
 
-sleep 10
+# TODO: if repo exist, check remote url
+if [ ! -d /data/repo ]; then
+  bashio::log.info "Initial repo cloning..."
+  git clone "$(bashio::config git_repo)" /data/repo
+fi
+
+exec /usr/bin/do_backup

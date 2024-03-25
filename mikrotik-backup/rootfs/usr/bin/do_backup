@@ -3,7 +3,7 @@
 set -euo pipefail
 
 function _ssh() {
-    ssh -n "$@" | sed s/.$//
+    ssh -i ~/.ssh/id_rsa -n "$@" | sed s/.$//
 }
 
 bashio::log.info "Pulling repo changes..."

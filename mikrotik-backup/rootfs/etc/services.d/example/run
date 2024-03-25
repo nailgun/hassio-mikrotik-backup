@@ -39,4 +39,4 @@ if [ ! -d /data/repo ]; then
 fi
 
 /etc/periodic/daily/do_backup
-exec crond
+exec crond -f -l 2

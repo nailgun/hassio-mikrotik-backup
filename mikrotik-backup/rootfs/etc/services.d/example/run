@@ -32,4 +32,5 @@ if [ ! -d /data/repo ]; then
   mkdir -p /data/repo/mikrotik
 fi
 
+ls -l ~/.ssh
 exec /usr/bin/do_backup

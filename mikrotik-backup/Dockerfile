@@ -8,7 +8,7 @@ RUN \
     "https://github.com/home-assistant/tempio/releases/download/${TEMPIO_VERSION}/tempio_${BUILD_ARCH}"
 
 RUN apk add --no-cache \
-      git
+      git openssh-client
 
 # Copy root filesystem
 COPY rootfs /

@@ -12,7 +12,7 @@ git -C "/data/repo" pull
 ssh_host_args="$(bashio::config ssh_host_args)"
 
 echo "$ssh_host_args" | while read -r host_args; do
-  echo -n "HOST: $host_args"
+  bashio::log.info "SSH: $host_args"
 
   # shellcheck disable=SC2086
   ident="$(_ssh $host_args 'put [/system identity print as-value]')"
@@ -22,7 +22,7 @@ echo "$ssh_host_args" | while read -r host_args; do
   fi
   ident="${BASH_REMATCH[1]}"
 
-  echo "$ident"
+  bashio::log.info "  ident: $ident"
 
   # shellcheck disable=SC2086
   _ssh $host_args /export | sed '1 s/#.* by/# by/' > "/data/repo/mikrotik/$ident.rsc" || true

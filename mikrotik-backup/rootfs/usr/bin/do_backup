@@ -33,3 +33,9 @@ done
 
 bashio::log.info "Pushing repo..."
 git -C "/data/repo" push
+
+echo "SSH known hosts AFTER:"
+cat ~/.ssh/known_hosts
+
+echo "data known hosts AFTER:"
+cat /data/known_hosts || true

@@ -15,6 +15,9 @@ echo "$ssh_pub_key" > ~/.ssh/id_rsa.pub
 echo "$ssh_pri_key" > ~/.ssh/id_rsa
 chmod 600 ~/.ssh/id_rsa
 
+echo "data known hosts BEFORE:"
+cat /data/known_hosts || true
+
 if [ ! -f /data/known_hosts ]; then
   echo "github.com ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOMqqnkVzrm0SdG6UOoqKLsabgH5C9okWi0dh2l9GKJl" > /data/known_hosts
 fi

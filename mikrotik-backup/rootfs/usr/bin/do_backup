@@ -6,6 +6,9 @@ function _ssh() {
     ssh -n "$@" | sed s/.$//
 }
 
+# Restore known_hosts file, symlink on this file doesn't work for some reason
+cp /data/known_hosts ~/.ssh/known_hosts
+
 bashio::log.info "Pulling repo changes..."
 git -C "/data/repo" pull
 
@@ -34,12 +37,5 @@ done
 bashio::log.info "Pushing repo..."
 git -C "/data/repo" push
 
-echo "SSH known hosts AFTER:"
-cat ~/.ssh/known_hosts
-
-echo "data known hosts AFTER:"
-cat /data/known_hosts || true
-
-set -x
-ls -l ~/.ssh
-ls -l /data
+# Save known_hosts file
+cp ~/.ssh/known_hosts /data/known_hosts

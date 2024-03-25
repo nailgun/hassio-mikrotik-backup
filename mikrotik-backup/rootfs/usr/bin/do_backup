@@ -23,26 +23,12 @@ echo "$ssh_host_args" | while read -r host_args; do
   ident="${BASH_REMATCH[1]}"
 
   echo "$ident"
-done
 
-exit 0
+  # shellcheck disable=SC2086
+  _ssh $host_args /export | sed '1 s/#.* by/# by/' > "/data/repo/mikrotik/$ident.rsc" || true
 
-echo "$ssh_host_args" | while read -r host_args; do
-    echo -n "HOST: $host   "
-
-    ident="$(_ssh $host 'put [/system identity print as-value]')"
-    if [[ ! "$ident" =~ ^name=(.*)$ ]]; then
-        echo "Invalid identity output: '$ident'" >&2
-        exit 1
-    fi
-    ident="${BASH_REMATCH[1]}"
-
-    echo "$ident"
-
-    _ssh $host /export | sed '1 s/#.* by/# by/' > "/data/repo/mikrotik/$ident.rsc" || true
-
-    git -C "/data/repo" add "/data/repo/mikrotik/$ident.rsc"
-    git -C "/data/repo" commit --message="Mikrotik backup: $ident" || true
+  git -C "/data/repo" add "/data/repo/mikrotik/$ident.rsc"
+  git -C "/data/repo" commit --message="Mikrotik backup: $ident" || true
 done
 
 bashio::log.info "Pushing repo..."

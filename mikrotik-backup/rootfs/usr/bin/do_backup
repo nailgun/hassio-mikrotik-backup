@@ -11,13 +11,13 @@ git -C "/data/repo" pull
 
 ssh_host_args="$(bashio::config ssh_host_args)"
 
-for host_args in "${ssh_host_args[@]}"; do
+echo "$ssh_host_args" | while read -r host_args; do
   echo "ARGS: $host_args"
 done
 
 exit 0
 
-while read -r host; do
+echo "$ssh_host_args" | while read -r host_args; do
     echo -n "HOST: $host   "
 
     ident="$(_ssh $host 'put [/system identity print as-value]')"

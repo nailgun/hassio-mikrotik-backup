@@ -18,6 +18,7 @@ chmod 600 ~/.ssh/id_rsa
 if [ ! -f /data/known_hosts ]; then
   echo "github.com ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOMqqnkVzrm0SdG6UOoqKLsabgH5C9okWi0dh2l9GKJl" > /data/known_hosts
 fi
+rm -f ~/.ssh/known_hosts
 ln -s /data/known_hosts ~/.ssh/known_hosts
 
 if bashio::config.true "skip_host_key_checking"; then

@@ -39,3 +39,7 @@ cat ~/.ssh/known_hosts
 
 echo "data known hosts AFTER:"
 cat /data/known_hosts || true
+
+set -x
+ls -l ~/.ssh
+ls -l /data

@@ -6,15 +6,22 @@
 
 set -euo pipefail
 
+echo 1
 mkdir ~/.ssh
+echo 2
 bashio::config ssh_pub_key > ~/.ssh/id_rsa.pub
+echo 3
 bashio::config ssh_pri_key > ~/.ssh/id_rsa
+echo 4
 chmod 600 ~/.ssh/id_rsa
+echo 5
 
 # TODO: if repo exist, check remote url
 if [ ! -d /data/repo ]; then
   bashio::log.info "Initial repo cloning..."
   git clone "$(bashio::config git_repo)" /data/repo
 fi
+
+echo 6
 
 exec /usr/bin/do_backup

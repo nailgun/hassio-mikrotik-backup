@@ -11,7 +11,7 @@ mkdir ~/.ssh
 echo 2
 echo "$(bashio::config 'ssh_pub_key')"
 echo 2.1
-bashio::config 'ssh_pub_key'
+echo "$(bashio::config ssh_pub_key)"
 echo 2.2
 bashio::config 'ssh_pub_key' > ~/.ssh/id_rsa.pub
 echo 3

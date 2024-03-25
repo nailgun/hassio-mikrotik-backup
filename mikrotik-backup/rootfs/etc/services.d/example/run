@@ -38,4 +38,5 @@ if [ ! -d /data/repo ]; then
   mkdir -p /data/repo/mikrotik
 fi
 
-exec /usr/bin/do_backup
+/etc/periodic/daily/do_backup
+exec crond

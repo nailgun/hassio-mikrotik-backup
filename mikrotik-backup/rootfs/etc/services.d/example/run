@@ -11,10 +11,19 @@ ssh_pri_key="$(bashio::config ssh_pri_key)"
 git_repo="$(bashio::config git_repo)"
 
 mkdir -p ~/.ssh
-echo "github.com ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOMqqnkVzrm0SdG6UOoqKLsabgH5C9okWi0dh2l9GKJl" >> ~/.ssh/known_hosts
 echo "$ssh_pub_key" > ~/.ssh/id_rsa.pub
 echo "$ssh_pri_key" > ~/.ssh/id_rsa
 chmod 600 ~/.ssh/id_rsa
+
+if [ ! -f /data/known_hosts ]; then
+  echo "github.com ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOMqqnkVzrm0SdG6UOoqKLsabgH5C9okWi0dh2l9GKJl" > /data/known_hosts
+fi
+ln -s /data/known_hosts ~/.ssh/known_hosts
+
+if bashio::config.true "skip_host_key_checking"; then
+  bashio::log.warning "skip_host_key_checking is enabled, disable it after first run!"
+  echo -e "Host *\n    StrictHostKeyChecking no" > ~/.ssh/config
+fi
 
 # TODO: if repo exist, check remote url
 if [ ! -d /data/repo ]; then

@@ -19,9 +19,11 @@ options:
   ssh_host_args:
   - username@hostname
   - -p 1234 root@192.168.0.1
+  skip_host_key_checking: false
 schema:
   ssh_pub_key: str?
   ssh_pri_key: str?
   git_repo: str?
   ssh_host_args:
   - str
+  skip_host_key_checking: bool

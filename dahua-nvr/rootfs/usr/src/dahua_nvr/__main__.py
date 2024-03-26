@@ -20,6 +20,14 @@ NODE_ID = 'dahua_nvr'
 SET_RE = re.compile(rf'{DISCOVERY_PREFIX}/switch/{NODE_ID}/cam(\d+)/set')
 OFF_SUFFIX = '_OFF_'
 UPDATE_INTERVAL = 60
+DEVICE_INFO = {
+    'identifiers': [
+        'dahua_nvr',
+    ],
+    'manufacturer': 'Community',
+    'model': 'Dahua NVR',
+    'name': 'Dahua NVR',
+}
 
 state_changed_event = threading.Event()
 
@@ -61,13 +69,7 @@ def publish_config(client: mqtt.Client, state):
             'name': cam_name,
             'command_topic': f'{mqtt_prefix}/set',
             'state_topic': f'{mqtt_prefix}/state',
-            'device': {
-                'model': cam['DeviceInfo']['DeviceType'],
-                'connections': [
-                    ['ip', ip],
-                    ['port', cam['DeviceInfo']['Port']],
-                ],
-            },
+            'device': DEVICE_INFO,
             'icon': 'mdi:video',
         }
 
@@ -193,6 +195,8 @@ def main():
     arg_parser.add_argument('--dahua-password', required=True)
 
     args = arg_parser.parse_args()
+
+    DEVICE_INFO['configuration_url'] = f'http://{args.dahua_host}/'
 
     log.info('Connecting to Dahua NVR...')
     device = DahuaDevice(args.dahua_host)

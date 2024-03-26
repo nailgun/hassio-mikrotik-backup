@@ -162,6 +162,8 @@ class UpdateThread(threading.Thread):
         self.device = device
 
     def run(self):
+        counter = 0
+
         while True:
             if state_changed_event.wait(timeout=UPDATE_INTERVAL):
                 state_changed_event.clear()
@@ -171,8 +173,13 @@ class UpdateThread(threading.Thread):
             else:
                 log.info('Refreshing state from NVR by timer')
 
+            counter += 1
             if self.client.is_connected:
-                publish_state(self.client, read_state(self.device))
+                state = read_state(self.device)
+                publish_state(self.client, state)
+                if counter % 10 == 0:
+                    # refresh config every 10th update
+                    publish_config(self.client, state)
 
 
 def main():

@@ -11,7 +11,7 @@ import paho.mqtt.client as mqtt
 from .device import DahuaDevice
 
 
-logging.basicConfig(format='%(levelname)s: %(message)s', level=logging.INFO)
+logging.basicConfig(format='%(asctime)s %(levelname)s: %(message)s', level=logging.INFO)
 log = logging.getLogger('__name__')
 
 
@@ -77,7 +77,7 @@ def publish_config(client: mqtt.Client, state):
             entity_config['device']['configuration_url'] = f'http://{ip}/'
 
         client.publish(f'{mqtt_prefix}/config', json.dumps(entity_config), qos=1)
-        log.info(f'{cam_name} config published')
+        log.info('%s config published', cam_name)
 
 
 def publish_state(client: mqtt.Client, state):
@@ -88,7 +88,7 @@ def publish_state(client: mqtt.Client, state):
         state_str = 'ON' if cam['_state'] else 'OFF'
 
         client.publish(f'{mqtt_prefix}/state', state_str, qos=1)
-        log.info(f'{cam_name} state published')
+        log.info('%s state published', cam_name)
 
 
 def on_connect(client: mqtt.Client, device: DahuaDevice, flags, reason_code, properties):
@@ -104,7 +104,7 @@ def on_connect(client: mqtt.Client, device: DahuaDevice, flags, reason_code, pro
 def on_message(client: mqtt.Client, device: DahuaDevice, msg: mqtt.MQTTMessage):
     match = SET_RE.match(msg.topic)
     if not match:
-        log.error('Got invalid MQTT topic:', msg.topic)
+        log.error('Got invalid MQTT topic: %s', msg.topic)
         return
 
     new_state_b = msg.payload
@@ -113,7 +113,7 @@ def on_message(client: mqtt.Client, device: DahuaDevice, msg: mqtt.MQTTMessage):
     elif new_state_b == b'OFF':
         new_state = False
     else:
-        log.error('Got invalid state:', new_state_b)
+        log.error('Got invalid state: %s', new_state_b)
         return
 
     channel1 = int(match.group(1))
@@ -141,9 +141,9 @@ def on_message(client: mqtt.Client, device: DahuaDevice, msg: mqtt.MQTTMessage):
 
     device.secure_request('LogicDeviceManager.secSetCamera', {'cameras': [cam]})
     if new_state:
-        log.info(f'{cam_name} turned on')
+        log.info('%s turned on', cam_name)
     else:
-        log.info(f'{cam_name} turned off')
+        log.info('%s turned off', cam_name)
 
     cam['_state'] = new_state
     publish_state(client, state)
@@ -177,11 +177,14 @@ class UpdateThread(threading.Thread):
 
             counter += 1
             if self.client.is_connected:
-                state = read_state(self.device)
-                publish_state(self.client, state)
-                if counter % 10 == 0:
-                    # refresh config every 10th update
-                    publish_config(self.client, state)
+                try:
+                    state = read_state(self.device)
+                    publish_state(self.client, state)
+                    if counter % 10 == 0:
+                        # refresh config every 10th update
+                        publish_config(self.client, state)
+                except Exception:
+                    log.exception('Got error while updating state')
 
 
 def main():

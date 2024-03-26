@@ -2,12 +2,15 @@ import json
 import base64
 import random
 import hashlib
+import logging
 from functools import cached_property
 
 import requests
 from Crypto.Cipher import AES
 from Crypto.PublicKey import RSA
 from Crypto.Cipher import PKCS1_v1_5
+
+log = logging.getLogger(__name__)
 
 
 class DahuaDevice:
@@ -18,6 +21,8 @@ class DahuaDevice:
         self.last_request_id = 0
         self.session_id = None
         self.key = None
+        self.username = None
+        self.password = None
 
     def request(self, method, params, uri=None, raise_for_result=True):
         if uri is None:
@@ -42,11 +47,21 @@ class DahuaDevice:
         self.session_id = resp_body.get('session')
 
         if raise_for_result and not resp_body['result']:
-            raise Exception('Request failed', resp_body)
+            err = DahuaError(resp_body['error']['code'], resp_body['error']['message'])
+            if err.code == 287637505:
+                log.error('Session error: %s', err.message)
+                log.info('Relogging...')
+                self.login(self.username, self.password)
+                return self.request(method, params, uri=uri, raise_for_result=raise_for_result)
+            else:
+                raise err
 
         return resp_body
 
     def login(self, username, password):
+        self.username = username
+        self.password = password
+
         dahua_json = self.request('global.login', {
             "userName": "admin",
             "password": "",
@@ -69,9 +84,6 @@ class DahuaDevice:
             "authorityType": "Default",
             "passwordType": "Default"
         }, uri=self.login_uri)
-
-        if not resp['result']:
-            raise Exception('Login failed', resp)
 
         return resp
 
@@ -161,3 +173,10 @@ def sofia_hash(msg):
             n += 0x30
         h += chr(n)
     return h
+
+
+class DahuaError(Exception):
+    def __init__(self, code: int, message: str):
+        super().__init__(code, message)
+        self.code = code
+        self.message = message

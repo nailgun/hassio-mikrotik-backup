@@ -1,7 +1,7 @@
 # https://developers.home-assistant.io/docs/add-ons/configuration#add-on-config
 
 name: Dahua NVR
-version: "1.0.1"
+version: "1.0.2"
 slug: dahua-nvr
 description: Control cameras connected to Dahua NVR
 arch:

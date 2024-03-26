@@ -19,4 +19,4 @@ schema:
   dahua_host: str
   dahua_username: str
   dahua_password: password
-homeassistant_api: true
+hassio_api: true

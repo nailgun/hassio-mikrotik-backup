@@ -30,14 +30,18 @@ DEVICE_INFO = {
 }
 
 state_changed_event = threading.Event()
+device_lock = threading.Lock()
+mqtt_lock = threading.Lock()
 
 
 def read_state(device: DahuaDevice):
-    cameras = device.secure_request('LogicDeviceManager.secGetCameraAll', None)['params']['camera']
+    with device_lock:
+        cameras = device.secure_request('LogicDeviceManager.secGetCameraAll', None)['params']['camera']
     cameras = filter(lambda c: c['Type'] == 'Remote', cameras)
     cameras_dict = OrderedDict((c['UniqueChannel'], c) for c in cameras if c.get('Enable'))
 
-    states = device.request('LogicDeviceManager.getCameraState', {'uniqueChannels': [-1]})['params']['states']
+    with device_lock:
+        states = device.request('LogicDeviceManager.getCameraState', {'uniqueChannels': [-1]})['params']['states']
     for s in states:
         cam = cameras_dict.get(s['channel'])
         if cam:
@@ -76,7 +80,8 @@ def publish_config(client: mqtt.Client, state):
         if ip:
             entity_config['device']['configuration_url'] = f'http://{ip}/'
 
-        client.publish(f'{mqtt_prefix}/config', json.dumps(entity_config), qos=1)
+        with mqtt_lock:
+            client.publish(f'{mqtt_prefix}/config', json.dumps(entity_config), qos=1)
         log.info('%s config published', cam_name)
 
 
@@ -87,7 +92,8 @@ def publish_state(client: mqtt.Client, state):
 
         state_str = 'ON' if cam['_state'] else 'OFF'
 
-        client.publish(f'{mqtt_prefix}/state', state_str, qos=1)
+        with mqtt_lock:
+            client.publish(f'{mqtt_prefix}/state', state_str, qos=1)
         log.info('%s state published', cam_name)
 
 
@@ -98,7 +104,8 @@ def on_connect(client: mqtt.Client, device: DahuaDevice, flags, reason_code, pro
 
     # Subscribing in on_connect() means that if we lose the connection and
     # reconnect then subscriptions will be renewed.
-    client.subscribe(f'{DISCOVERY_PREFIX}/switch/{NODE_ID}/+/set')
+    with mqtt_lock:
+        client.subscribe(f'{DISCOVERY_PREFIX}/switch/{NODE_ID}/+/set')
 
 
 def on_message(client: mqtt.Client, device: DahuaDevice, msg: mqtt.MQTTMessage):
@@ -139,7 +146,8 @@ def on_message(client: mqtt.Client, device: DahuaDevice, msg: mqtt.MQTTMessage):
     # unknown field added on `LogicDeviceManager.secSetCamera`
     cam['DeviceInfo']['VideoInputChannels'] = None
 
-    device.secure_request('LogicDeviceManager.secSetCamera', {'cameras': [cam]})
+    with device_lock:
+        device.secure_request('LogicDeviceManager.secSetCamera', {'cameras': [cam]})
     if new_state:
         log.info('%s turned on', cam_name)
     else:
@@ -203,15 +211,17 @@ def main():
 
     log.info('Connecting to Dahua NVR...')
     device = DahuaDevice(args.dahua_host)
-    device.login(args.dahua_username, args.dahua_password)
+    with device_lock:
+        device.login(args.dahua_username, args.dahua_password)
 
     log.info('Connecting to MQTT server...')
     mqttc = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2)
-    mqttc.user_data_set(device)
-    mqttc.on_connect = on_connect
-    mqttc.on_message = on_message_protected
-    mqttc.username_pw_set(args.mqtt_username, args.mqtt_password)
-    mqttc.connect(args.mqtt_host, args.mqtt_port)
+    with mqtt_lock:
+        mqttc.user_data_set(device)
+        mqttc.on_connect = on_connect
+        mqttc.on_message = on_message_protected
+        mqttc.username_pw_set(args.mqtt_username, args.mqtt_password)
+        mqttc.connect(args.mqtt_host, args.mqtt_port)
 
     log.info('Starting update thread...')
     update_thread = UpdateThread(mqttc, device)

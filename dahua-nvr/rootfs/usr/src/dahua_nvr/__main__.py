@@ -66,7 +66,7 @@ def publish_config(client: mqtt.Client, state):
 
         entity_config = {
             'unique_id': unique_id,
-            'name': cam_name,
+            'name': cam_name.upper(),
             'command_topic': f'{mqtt_prefix}/set',
             'state_topic': f'{mqtt_prefix}/state',
             'device': DEVICE_INFO,

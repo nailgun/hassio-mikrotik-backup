@@ -8,7 +8,7 @@ RUN \
     "https://github.com/home-assistant/tempio/releases/download/${TEMPIO_VERSION}/tempio_${BUILD_ARCH}"
 
 RUN apk add --no-cache \
-      python3
+      python3 py3-pip
 
 # Copy root filesystem
 COPY rootfs /

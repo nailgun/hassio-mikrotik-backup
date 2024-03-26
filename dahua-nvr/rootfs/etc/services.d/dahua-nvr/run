@@ -1,0 +1,26 @@
+#!/usr/bin/with-contenv bashio
+# ==============================================================================
+# Start the service
+# s6-overlay docs: https://github.com/just-containers/s6-overlay
+# ==============================================================================
+
+set -euo pipefail
+
+mqtt_host=$(bashio::services mqtt "host")
+mqtt_username=$(bashio::services mqtt "username")
+mqtt_password=$(bashio::services mqtt "password")
+
+dahua_host="$(bashio::config dahua_host)"
+dahua_username="$(bashio::config dahua_username)"
+dahua_password="$(bashio::config dahua_password)"
+
+cd /usr/src
+
+# shellcheck disable=SC2093
+exec python -m dahua_nvr \
+  --mqtt-host="$mqtt_host" \
+  --mqtt-username="$mqtt_username" \
+  --mqtt-password="$mqtt_password" \
+  --dahua-host="$dahua_host" \
+  --dahua-username="$dahua_username" \
+  --dahua-password="$dahua_password"

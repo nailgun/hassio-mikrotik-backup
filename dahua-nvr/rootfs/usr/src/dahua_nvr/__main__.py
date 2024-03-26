@@ -194,9 +194,11 @@ def main():
 
     args = arg_parser.parse_args()
 
+    log.info('Connecting to Dahua NVR...')
     device = DahuaDevice(args.dahua_host)
     device.login(args.dahua_username, args.dahua_password)
 
+    log.info('Connecting to MQTT server...')
     mqttc = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2)
     mqttc.user_data_set(device)
     mqttc.on_connect = on_connect
@@ -204,9 +206,11 @@ def main():
     mqttc.username_pw_set(args.mqtt_username, args.mqtt_password)
     mqttc.connect(args.mqtt_host, args.mqtt_port)
 
+    log.info('Starting update thread...')
     update_thread = UpdateThread(mqttc, device)
     update_thread.start()
 
+    log.info('Running...')
     # Blocking call that processes network traffic, dispatches callbacks and
     # handles reconnecting.
     # Other loop*() functions are available that give a threaded interface and a

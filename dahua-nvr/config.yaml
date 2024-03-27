@@ -1,7 +1,7 @@
 # https://developers.home-assistant.io/docs/add-ons/configuration#add-on-config
 
 name: Dahua NVR
-version: "1.0.2"
+version: "1.1.0"
 slug: dahua-nvr
 description: Control cameras connected to Dahua NVR
 arch:
@@ -15,9 +15,13 @@ options:
   dahua_host: 192.168.0.111
   dahua_username: admin
   dahua_password: admin
+  update_interval: 10
+  config_update_every: 10
 schema:
   dahua_host: str
   dahua_username: str
   dahua_password: password
+  update_interval: 10
+  config_update_every: 10
 services:
   - mqtt:need

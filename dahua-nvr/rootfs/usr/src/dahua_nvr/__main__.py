@@ -19,7 +19,6 @@ DISCOVERY_PREFIX = 'homeassistant'
 NODE_ID = 'dahua_nvr'
 SET_RE = re.compile(rf'{DISCOVERY_PREFIX}/switch/{NODE_ID}/cam(\d+)/set')
 OFF_SUFFIX = '_OFF_'
-UPDATE_INTERVAL = 60
 DEVICE_INFO = {
     'identifiers': [
         'dahua_nvr',
@@ -166,16 +165,22 @@ def on_message_protected(*args, **kwargs):
 
 
 class UpdateThread(threading.Thread):
-    def __init__(self, client: mqtt.Client, device: DahuaDevice):
+    def __init__(self,
+                 client: mqtt.Client,
+                 device: DahuaDevice,
+                 update_interval: float = 10,
+                 config_update_every: int = 10):
         super().__init__(daemon=True)
         self.client = client
         self.device = device
+        self.update_interval = update_interval
+        self.config_update_every = config_update_every
 
     def run(self):
         counter = 0
 
         while True:
-            if state_changed_event.wait(timeout=UPDATE_INTERVAL):
+            if state_changed_event.wait(timeout=self.update_interval):
                 state_changed_event.clear()
                 log.info('State changed, will wait for 10 seconds and refresh state from NVR')
                 # if woken by event, give some time for NVR to connect to new camera
@@ -188,7 +193,7 @@ class UpdateThread(threading.Thread):
                 try:
                     state = read_state(self.device)
                     publish_state(self.client, state)
-                    if counter % 10 == 0:
+                    if counter % self.config_update_every == 0:
                         # refresh config every 10th update
                         log.info('Also refreshing device config')
                         publish_config(self.client, state)
@@ -205,6 +210,8 @@ def main():
     arg_parser.add_argument('--dahua-host', required=True)
     arg_parser.add_argument('--dahua-username', required=True)
     arg_parser.add_argument('--dahua-password', required=True)
+    arg_parser.add_argument('--update-interval', type=int, default=10)
+    arg_parser.add_argument('--config-update-every', type=int, default=10)
 
     args = arg_parser.parse_args()
 
@@ -225,7 +232,7 @@ def main():
         mqttc.connect(args.mqtt_host, args.mqtt_port)
 
     log.info('Starting update thread...')
-    update_thread = UpdateThread(mqttc, device)
+    update_thread = UpdateThread(mqttc, device, args.update_interval, args.config_update_every)
     update_thread.start()
 
     log.info('Running...')

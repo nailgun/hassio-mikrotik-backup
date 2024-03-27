@@ -13,6 +13,8 @@ mqtt_password=$(bashio::services mqtt "password")
 dahua_host="$(bashio::config dahua_host)"
 dahua_username="$(bashio::config dahua_username)"
 dahua_password="$(bashio::config dahua_password)"
+update_interval="$(bashio::config update_interval)"
+config_update_every="$(bashio::config config_update_every)"
 
 cd /usr/src
 
@@ -23,4 +25,6 @@ exec python -m dahua_nvr \
   --mqtt-password="$mqtt_password" \
   --dahua-host="$dahua_host" \
   --dahua-username="$dahua_username" \
-  --dahua-password="$dahua_password"
+  --dahua-password="$dahua_password" \
+  --update-interval="$update_interval" \
+  --config-update-every="$config_update_every"

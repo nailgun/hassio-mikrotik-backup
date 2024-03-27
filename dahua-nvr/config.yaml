@@ -21,7 +21,7 @@ schema:
   dahua_host: str
   dahua_username: str
   dahua_password: password
-  update_interval: 10
-  config_update_every: 10
+  update_interval: int
+  config_update_every: int
 services:
   - mqtt:need

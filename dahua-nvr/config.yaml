@@ -15,7 +15,7 @@ options:
   dahua_host: 192.168.0.111
   dahua_username: admin
   dahua_password: admin
-  update_interval: 10
+  update_interval: 60
   config_update_every: 10
 schema:
   dahua_host: str

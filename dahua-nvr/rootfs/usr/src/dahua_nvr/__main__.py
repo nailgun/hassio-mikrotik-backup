@@ -168,7 +168,7 @@ class UpdateThread(threading.Thread):
     def __init__(self,
                  client: mqtt.Client,
                  device: DahuaDevice,
-                 update_interval: float = 10,
+                 update_interval: float = 60,
                  config_update_every: int = 10):
         super().__init__(daemon=True)
         self.client = client
@@ -210,7 +210,7 @@ def main():
     arg_parser.add_argument('--dahua-host', required=True)
     arg_parser.add_argument('--dahua-username', required=True)
     arg_parser.add_argument('--dahua-password', required=True)
-    arg_parser.add_argument('--update-interval', type=int, default=10)
+    arg_parser.add_argument('--update-interval', type=int, default=60)
     arg_parser.add_argument('--config-update-every', type=int, default=10)
 
     args = arg_parser.parse_args()

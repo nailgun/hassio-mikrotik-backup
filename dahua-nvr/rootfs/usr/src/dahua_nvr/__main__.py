@@ -190,6 +190,7 @@ class UpdateThread(threading.Thread):
                     publish_state(self.client, state)
                     if counter % 10 == 0:
                         # refresh config every 10th update
+                        log.info('Also refreshing device config')
                         publish_config(self.client, state)
                 except Exception:
                     log.exception('Got error while updating state')
